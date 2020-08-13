@@ -20,20 +20,19 @@
 
 
 # Export all existing Workstation names to a CSV file with a beefy one liner. 
-
-Get-ADComputer -Filter 'Name -like "OPTIMUMHIT-*"' -Property * | 
-Sort-Object | Select-Object Name | 
-Export-Csv C:\users\ftaylor\Desktop\ADComputerList.csv -NoTypeInformation -Encoding UTF8
+# !! Removing this - we can store the AD objects in memory for a speed enhancment (like a speed hole)
+$allPCs = Get-ADComputer -Filter 'Name -like "OPTIMUMHIT-*"' -Property *  
+ 
 
 
 
 #Import all of the existing Active Directory workstion names into an empty array list.
-
-$Path = Import-Csv -Path C:\Users\ftaylor\Desktop\ADComputerList.csv
+#!! removing this for the same reasons as above, we can do this in memory for quickification
+#$Path = Import-Csv -Path C:\Users\ftaylor\Desktop\ADComputerList.csv
 
 $ExistingNames = [System.Collections.ArrayList]@()
 
-ForEach ($workstation in $Path) {
+ForEach ($workstation in $allPCs) {
 
 #Write-Host $workstation.Name
 
@@ -106,11 +105,6 @@ Write-Host $WS.InputObject
 $UsableNames.Add($WS.InputObject)
 
 }
-
-#foreach ($PosName in $UsableNames){
-#Write-Host $PosName
-#}
-
 
 #Here's where the magic happens.
 $Available = Read-Host -Prompt "Enter the number of new AD workstions needed"
