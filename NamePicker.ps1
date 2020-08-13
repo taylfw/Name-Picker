@@ -21,11 +21,9 @@
 
 # Export all existing Workstation names to a CSV file with a beefy one liner. 
 # !! Removing this - we can store the AD objects in memory for a speed enhancment (like a speed hole)
+
 $allPCs = Get-ADComputer -Filter 'Name -like "OPTIMUMHIT-*"' -Property *  
  
-
-
-
 #Import all of the existing Active Directory workstion names into an empty array list.
 #!! removing this for the same reasons as above, we can do this in memory for quickification
 #$Path = Import-Csv -Path C:\Users\ftaylor\Desktop\ADComputerList.csv
@@ -91,17 +89,12 @@ $PotentialName.Add("$($Name)$($Number)")
 } While ($Number -gt 98 -and $Number -le 556)
 
 #This little guy compares the two array lists above. It finds all the workstation names that don't matach and creates a csv file containing usable names. 
-
-Compare-Object -ReferenceObject $PotentialName -DifferenceObject $ExistingNames | 
-select InputObject | 
-Export-Csv -Path C:\Users\ftaylor\Desktop\PossibleNames.csv -NoTypeInformation -Encoding UTF8
-
 $UsableNames = [System.Collections.ArrayList]@()
-$Path2 = Import-Csv -Path C:\Users\ftaylor\Desktop\PossibleNames.csv
-Foreach ($WS in $Path2) {
+$availableWorkstationNames = Compare-Object -ReferenceObject $PotentialName -DifferenceObject $ExistingNames | 
+Select-Object InputObject
+Foreach ($WS in $availableWorkstationNames) {
 
 Write-Host $WS.InputObject
-
 $UsableNames.Add($WS.InputObject)
 
 }
@@ -113,11 +106,7 @@ Read-Host "Press 'Enter' for the available names in this range"
 $Available = $Available - 1
 $UsableNames[0..$Available]
 
-
-
 $create = Read-Host -prompt "Create these Workstations in AD?(y/n)"
-
-
 
 If ($create = "y") {
 
@@ -142,15 +131,5 @@ Add-ADGroupMember -Members $name -Identity 'Workstations'
 
 } 
 }Else {
-write-host "Okay Bye!"
+write-host "Okay, whatever"
 }
-
-
-
-
-
-
-
-
-
-
