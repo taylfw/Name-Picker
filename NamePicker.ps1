@@ -5,7 +5,7 @@
 # Export all existing Workstation names to a CSV file with a beefy one liner. 
 # !! Removing this - we can store the AD objects in memory for a speed enhancment (like a speed hole)
 
-$allPCs = Get-ADComputer -Filter 'Name -like "OPTIMUMHIT-*"' -Property *  
+$allPCs = Get-ADComputer -Filter 'Name -like "FRANKSTATION-*"' -Property *  
  
 #Import all of the existing Active Directory workstion names into an empty array list.
 #!! removing this for the same reasons as above, we can do this in memory for quickification
@@ -26,16 +26,16 @@ $ExistingNames.Add($workstation.Name)
 
 $PotentialName = [System.Collections.ArrayList]@()
 
-$Name = "OPTIMUMHIT-"
+$Name = "FRANKSTATION-"
 
-$Name1 = "OPTIMUMHIT-0"
+$Name1 = "FRANKSTATION-0"
 
-$Name2 = "OPTIMUMHIT-00"
+$Name2 = "FRANKSTATION-00"
 
 $Number = 0
 
 #I had to add this to avoid it allways popping up in the Compare-Object list.
-$PotentialName.Add("OPTIMUMHIT-000")
+$PotentialName.Add("FRANKSTATION-000")
 
 DO
 {
