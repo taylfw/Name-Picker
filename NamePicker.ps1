@@ -103,7 +103,7 @@ $FinalAnswer.Add($computer)
 
 forEach ($computer in $FinalAnswer) {
 
-New-ADComputer -Name $computer -Path "OU=Field Machines,OU=Workstations,DC=OPTIMUMHIT,DC=local"
+New-ADComputer -Name $computer -Path "OU=Field Machines,OU=Workstations,DC=FRANKZONE,DC=local"
 
 }
 foreach($computer in $FinalAnswer){
