@@ -1,86 +1,60 @@
-﻿
+# Grab all existing workstation names
+
+$ExistingNames = (Get-ADComputer -Filter 'Name -like "CONTOSO-*"' -Property * | 
+Sort-Object | Select-Object Name).Name
 
 
-
-# Export all existing Workstation names to a CSV file with a beefy one liner. 
-# !! Removing this - we can store the AD objects in memory for a speed enhancment (like a speed hole)
-
-$allPCs = Get-ADComputer -Filter 'Name -like "FRANKSTATION-*"' -Property *  
- 
-#Import all of the existing Active Directory workstion names into an empty array list.
-#!! removing this for the same reasons as above, we can do this in memory for quickification
-#$Path = Import-Csv -Path C:\Users\ftaylor\Desktop\ADComputerList.csv
-
-$ExistingNames = [System.Collections.ArrayList]@()
-
-ForEach ($workstation in $allPCs) {
-
-#Write-Host $workstation.Name
-
-$ExistingNames.Add($workstation.Name)
-
-}
-
-
-#Create and add all potential workstation names from 'OPTIMUMHIT-001' to 'OPTIMUMHIT-557' to and empty array list. 
+#Create and add all potential workstation names from 'CONTOSO-001' to 'CONTOSO-800' to and empty array list. 
 
 $PotentialName = [System.Collections.ArrayList]@()
 
-$Name = "FRANKSTATION-"
+$Name = "CONTOSO-"
 
-$Name1 = "FRANKSTATION-0"
+$Name1 = "CONTOSO-0"
 
-$Name2 = "FRANKSTATION-00"
+$Name2 = "CONTOSO-00"
 
-$Number = 0
+$Number = 0 
 
-#I had to add this to avoid it allways popping up in the Compare-Object list.
-$PotentialName.Add("FRANKSTATION-000")
+#I had to add these to avoid them allways popping up in the Compare-Object list.
+$PotentialName.Add("CONTOSO-000")
+$PotentialName.Add("CONTOSO-999")
+Write-Host "Beep Boop"
+DO
+{
+
+    $Number++
+    $PotentialName.Add("$($Name2)$($Number)") > $null
+
+} 
+
+While ($Number -le 8)
 
 DO
 {
 
-$Number++
+    $Number++
+    $PotentialName.Add("$($Name1)$($Number)") > $null
 
-#Write-Host "$($Name2)$($Number)"
+} 
 
-$PotentialName.Add("$($Name2)$($Number)")
-
-} While ($Number -le 8)
-
-DO
-{
-
-$Number++
-
-#Write-Host "$($Name1)$($Number)"
-
-$PotentialName.Add("$($Name1)$($Number)")
-
-} While ($Number -gt 8 -and $Number -le 98)
-
+While ($Number -gt 8 -and $Number -le 98)
 
 DO
 {
 
-$Number++
+    $Number++  
+    $PotentialName.Add("$($Name)$($Number)") > $null
 
-#Write-Host "$($Name)$($Number)"
+} 
 
-$PotentialName.Add("$($Name)$($Number)")
+While ($Number -gt 98 -and $Number -le 800) 
 
-} While ($Number -gt 98 -and $Number -le 556)
+Write-Host "Beep..."
 
-#This little guy compares the two array lists above. It finds all the workstation names that don't matach and creates a csv file containing usable names. 
-$UsableNames = [System.Collections.ArrayList]@()
-$availableWorkstationNames = Compare-Object -ReferenceObject $PotentialName -DifferenceObject $ExistingNames | 
-Select-Object InputObject
-Foreach ($WS in $availableWorkstationNames) {
-
-Write-Host $WS.InputObject
-$UsableNames.Add($WS.InputObject)
-
-}
+#Compares the two array lists above. It finds all the workstation names that don't matach and creates an array containing usable names. 
+$UsableNames = (Compare-Object -ReferenceObject $PotentialName -DifferenceObject $ExistingNames | 
+Select-Object InputObject).InputObject 
 
 #Here's where the magic happens.
 $Available = Read-Host -Prompt "Enter the number of new AD workstions needed"
@@ -91,28 +65,35 @@ $UsableNames[0..$Available]
 
 $create = Read-Host -prompt "Create these Workstations in AD?(y/n)"
 
-If ($create = "y") {
+If ($create -eq "y") {
 
-$load = $UsableNames[0..$Available]
+    $load = $UsableNames[0..$Available]
 
-$FinalAnswer = [System.Collections.ArrayList]@()
+    $FinalAnswer = [System.Collections.ArrayList]@()
 
-Foreach ($computer in $load){
-Write-Host $computer
-$FinalAnswer.Add($computer)
+    Foreach ($computer in $load){
 
-forEach ($computer in $FinalAnswer) {
+        Write-Host $computer
+        $FinalAnswer.Add($computer)
 
-New-ADComputer -Name $computer -Path "OU=Field Machines,OU=Workstations,DC=FRANKZONE,DC=local"
+    } 
 
-}
-foreach($computer in $FinalAnswer){
+    forEach ($computer in $FinalAnswer) {
 
-$name = Get-ADComputer $computer
-Add-ADGroupMember -Members $name -Identity 'Workstations'
-}
+        New-ADComputer -Name $computer -Path "OU=Field Machines,OU=Workstations,DC=CONTOSO,DC=local"
+        Start-Sleep -Seconds 5 -Verbose
+        $name = Get-ADComputer $computer
+        Write-Host $name.DistinguishedName
+        #Optional to add the computer to any security groups for GPO purposes
+        Add-ADGroupMember -Members $name.DistinguishedName -Identity 'Workstations'
 
-} 
-}Else {
-write-host "Okay, whatever"
+        Write-Host $computer " created in Active Directory and added to workstations group."
+
+    }
+    
+
+} Else {
+
+     write-host "Okay Bye!"
+
 }
